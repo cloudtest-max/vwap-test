@@ -6,3 +6,5 @@
 /lib/
 /.gradle/
 .DS_Store
+log4j-application.log
+log4j-test-product.log
