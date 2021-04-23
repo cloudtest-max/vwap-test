@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration debug="false" xmlns:log4j="http://jakarta.apache.org/log4j/">
+	<appender name="ConsoleAppender" class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{dd-MM-yyyy HH:mm:ss,SSS} [%-5p] [%t] %c.%M (%L): %m\n"/>
+		</layout>
+	</appender>
+	<appender name="TestProductFileAppender" class="org.apache.log4j.RollingFileAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{dd-MM-yyyy HH:mm:ss,SSS} [%-5p] [%t] %c.%M (%L): %m\n"/>
+		</layout>
+		<param name="File" value="/Users/thomas/Downloads/log4j-test-product.log"/>
+		<param name="MaxFileSize" value="5MB"/>
+		<param name="MaxBackupIndex" value="10"/>
+	</appender>
+	<appender name="fileAppender" class="org.apache.log4j.RollingFileAppender">
+    	<param name="File" value="/Users/thomas/Downloads/log4j-application.log"/>
+    	<layout class="org.apache.log4j.PatternLayout">
+    		<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n" />
+    	</layout>
+  	</appender>
+
+
+	<logger name="TEST_PRODUCT">
+		<level value="DEBUG" />
+		<appender-ref ref="TestProductFileAppender"/>
+	</logger> 
+	<root>
+		<priority value="info"/>
+    	<appender-ref ref="ConsoleAppender"/>
+    	<appender-ref ref="fileAppender"/>
+	</root> 
+	
+</log4j:configuration>
