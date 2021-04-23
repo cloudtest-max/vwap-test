@@ -108,16 +108,16 @@ public class VwapTrigger {
         }
 
 	  return queue;
-}
+  }
 
-private void logMarketValueToTestLogger(String productId, long quantity, double price) {
+  private void logMarketValueToTestLogger(String productId, long quantity, double price) {
 	  if ("TEST_PRODUCT".equals(productId))
 	        testProductLogger.debug("Market Value for " + productId + ", quantity = " + quantity + ", price =" + price);
 	      
 	
-}
+  }
 
-public Double getAverageMarketValue(String productId) {
+  public Double getAverageMarketValue(String productId) {
       if (marketValueMap.get(productId) == null) return null;
 
       MarketValueQueue queue = marketValueMap.get(productId);
