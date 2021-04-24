@@ -1,15 +1,15 @@
 package hsoft;
-import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.*;
 
-public class MarketValueQueue implements MarketValueQueueInterface {
-    private ArrayBlockingQueue<MarketValueItem> backingQueue;
+public class MarketValueQueue2 implements MarketValueQueueInterface {
+    private LinkedBlockingDeque<MarketValueItem> backingQueue;
     public static final int QUEUE_SIZE = 10;
-    public static final int QUEUE_SIZE_FOR_REMOVE = 5;
+    public static final int QUEUE_SIZE_FOR_REMOVE = 8;
 
-    public MarketValueQueue() {
-    	boolean fair = true;
-        backingQueue = new ArrayBlockingQueue<MarketValueItem>(QUEUE_SIZE, fair);
+    public MarketValueQueue2() {
+    	
+        backingQueue = new LinkedBlockingDeque<MarketValueItem>(QUEUE_SIZE);
     }
 
     public int size() {
@@ -30,7 +30,7 @@ public class MarketValueQueue implements MarketValueQueueInterface {
       long denominator = 0;
       Double price = null;
       synchronized(backingQueue) {
-        Iterator<MarketValueItem> it = backingQueue.iterator();
+        Iterator<MarketValueItem> it = backingQueue.descendingIterator();
         while (it.hasNext() && count <5) {
             MarketValueItem item = it.next();
             sum += (item.getPrice() * item.getQuantity());
@@ -45,7 +45,7 @@ public class MarketValueQueue implements MarketValueQueueInterface {
     public void addItemAndRemoveTail(MarketValueItem item) throws InterruptedException {
         synchronized(backingQueue) {
             // if queue is full, remove the tail and insert the new element
-            if (backingQueue.size() >= MarketValueQueue.QUEUE_SIZE_FOR_REMOVE) {
+            if (backingQueue.size() >= MarketValueQueue2.QUEUE_SIZE_FOR_REMOVE) {
                 backingQueue.take();
             }
                 
@@ -53,17 +53,16 @@ public class MarketValueQueue implements MarketValueQueueInterface {
         }
     }
     public List<MarketValueItem>  getLast5Data() {
-    	List<MarketValueItem> list = null;
+    	List<MarketValueItem> list = new ArrayList<MarketValueItem>();
     	int count=0;
     	synchronized(backingQueue) {
-    		ArrayDeque<MarketValueItem>  reverseList = new ArrayDeque<MarketValueItem>();
-            Iterator<MarketValueItem> it = backingQueue.iterator();
+            Iterator<MarketValueItem> it = backingQueue.descendingIterator();
             while (it.hasNext() && count <5) {
                 MarketValueItem item = it.next();
-                reverseList.addFirst(item);
+                list.add(item);
                 count++;
             }
-            list = Arrays.asList(reverseList.toArray(new MarketValueItem[5]));
+            
           }
     	return list;
     }

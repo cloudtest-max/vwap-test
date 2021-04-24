@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -66,18 +68,15 @@ public class VwapTriggerTest {
 	  
 	  
 	  MarketValueItem item = null;
-		try {
-			  for (int j=0; j<5; j++) {
-				  item = vwapTrigger.getMarketData(productId).take();
-				  int index = no_of_item - 5 +j;
-				  System.out.println(item + ", against marketValue="+marketValue[index]+",quantity="+quantity[index]);
-				  assertTrue(Double.compare(marketValue[index], item.getPrice())==0);
-				  assertTrue(Double.compare(quantity[index], item.getQuantity())==0);
-			  }	  
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		List<MarketValueItem> list =  vwapTrigger.getMarketData(productId).getLast5Data();
+		  for (int j=0; j< 5 ; j++) {
+			  item = list.get(j);
+			  //item = vwapTrigger.getMarketData(productId).take();
+			  int index = no_of_item - 1 - j;
+			  System.out.println(item + ", against marketValue="+marketValue[index]+",quantity="+quantity[index]);
+			  assertTrue(Double.compare(marketValue[index], item.getPrice())==0);
+			  assertTrue(Double.compare(quantity[index], item.getQuantity())==0);
+		  }
 	  
 	  
 	  vwapTrigger = null;

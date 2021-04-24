@@ -16,7 +16,7 @@ public class VwapTrigger {
   static Logger testProductLogger  = Logger.getLogger("TEST_PRODUCT");
 
   private Map<String, Double> fairValueMap = null;
-  private Map<String, MarketValueQueue> marketValueMap = null;
+  private Map<String, MarketValueQueueInterface> marketValueMap = null;
   
   public void writeResults(Logger logger, String productId, Double fairValue, Double averageMarketValue, int result) {
 
@@ -75,7 +75,7 @@ public class VwapTrigger {
   public Double getFairValue(String productId) {
 	  return fairValueMap.get(productId);
   }
-  public MarketValueQueue getMarketData(String productId) {
+  public MarketValueQueueInterface getMarketData(String productId) {
 	  return marketValueMap.get(productId);
   }
 
@@ -85,7 +85,7 @@ public class VwapTrigger {
 
   public  void storeMarketValue(String productId, long quantity, double price) {
       logMarketValueToTestLogger(productId, quantity, price);
-      MarketValueQueue queue = getMarketValueQueue(productId);
+      MarketValueQueueInterface queue = getMarketValueQueue(productId);
       try {
 
         queue.addItemAndRemoveTail(new MarketValueItem(productId, quantity, price));
@@ -96,12 +96,12 @@ public class VwapTrigger {
     
   }
 
-  private MarketValueQueue getMarketValueQueue(String productId) {
-	  MarketValueQueue queue = null;
+  private MarketValueQueueInterface getMarketValueQueue(String productId) {
+	  MarketValueQueueInterface queue = null;
 
         // check whether queue exist, if no , create it
         if (marketValueMap.get(productId) == null) { 
-          queue = new MarketValueQueue();
+          queue = new MarketValueQueue2(); //change to use LinkedBlockingDeque
           marketValueMap.put(productId, queue);
         } else {
           queue = marketValueMap.get(productId);
@@ -120,7 +120,7 @@ public class VwapTrigger {
   public Double getAverageMarketValue(String productId) {
       if (marketValueMap.get(productId) == null) return null;
 
-      MarketValueQueue queue = marketValueMap.get(productId);
+      MarketValueQueueInterface queue = marketValueMap.get(productId);
       if ( queue == null ) return null;
 
       return queue.getAverageMarketValue();
@@ -129,7 +129,7 @@ public class VwapTrigger {
 
   public VwapTrigger() {
     fairValueMap = new ConcurrentHashMap<String, Double>();
-    marketValueMap = new ConcurrentHashMap<String, MarketValueQueue>();
+    marketValueMap = new ConcurrentHashMap<String, MarketValueQueueInterface>();
 
 
   }
