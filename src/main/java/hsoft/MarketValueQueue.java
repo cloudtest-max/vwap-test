@@ -4,7 +4,7 @@ import java.util.*;
 
 public class MarketValueQueue {
     private ArrayBlockingQueue<MarketValueItem> backingQueue;
-    public static final int QUEUE_SIZE = 10;
+    public static final int QUEUE_SIZE = 5;
 
     public MarketValueQueue() {
     	boolean fair = true;
