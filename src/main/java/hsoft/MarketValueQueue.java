@@ -40,7 +40,7 @@ public class MarketValueQueue {
       }
       return price;
     }
-    public void addItem(MarketValueItem item) throws InterruptedException {
+    public void addItemAndRemoveTail(MarketValueItem item) throws InterruptedException {
         synchronized(backingQueue) {
             // if queue is full, remove the tail and insert the new element
             if (backingQueue.size() >= MarketValueQueue.QUEUE_SIZE) {

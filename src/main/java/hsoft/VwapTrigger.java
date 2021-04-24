@@ -88,7 +88,7 @@ public class VwapTrigger {
       MarketValueQueue queue = getMarketValueQueue(productId);
       try {
 
-        queue.addItem(new MarketValueItem(productId, quantity, price));
+        queue.addItemAndRemoveTail(new MarketValueItem(productId, quantity, price));
 
       } catch (InterruptedException e) {
         logger.error("Exception in storeMarketValue : " +e.getMessage());
