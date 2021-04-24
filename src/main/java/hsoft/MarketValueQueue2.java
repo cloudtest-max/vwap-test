@@ -46,7 +46,8 @@ public class MarketValueQueue2 implements MarketValueQueueInterface {
         synchronized(backingQueue) {
             // if queue is full, remove the tail and insert the new element
             if (backingQueue.size() >= MarketValueQueue2.QUEUE_SIZE_FOR_REMOVE) {
-                backingQueue.take();
+            	for (int i=0; i< (MarketValueQueue2.QUEUE_SIZE_FOR_REMOVE - 5); i++)
+            		backingQueue.take();
             }
                 
             backingQueue.put(item);
