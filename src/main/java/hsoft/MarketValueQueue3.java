@@ -46,15 +46,10 @@ public class MarketValueQueue3 implements MarketValueQueueInterface {
         
         
     }
+    // remove one element when condition met
     public void removeExcessElements() throws InterruptedException {
-    	//int countTmp = count.get();
-    	while (count.get() > QUEUE_SIZE_TO_KEEP) {
+    	if (backingQueue.poll()!=null)
     		count.decrementAndGet();
-    		if (backingQueue.poll() == null) 
-    			count.incrementAndGet();
-    		
-    	}
-    	
     		
     }
     public List<MarketValueItem>  getLast5Data() {
