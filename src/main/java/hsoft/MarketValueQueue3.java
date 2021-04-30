@@ -38,20 +38,23 @@ public class MarketValueQueue3 implements MarketValueQueueInterface {
     }
     public void addItemAndRemoveTail(MarketValueItem item) throws InterruptedException {
 
-        backingQueue.add(item);
-        int prevCount = count.getAndIncrement();
+    	backingQueue.add(item);
+    	int current_count = count.incrementAndGet();
         
-        if ((prevCount + 1) > QUEUE_SIZE_TO_TRIGGER_REMOVE)
+        if ((current_count) > QUEUE_SIZE_TO_TRIGGER_REMOVE)
         	removeExcessElements();
         
         
     }
     public void removeExcessElements() throws InterruptedException {
-    	int countTmp = count.get();
-    	if (countTmp > QUEUE_SIZE_TO_KEEP) {
-    		backingQueue.poll();
-    		countTmp = count.getAndDecrement();
+    	//int countTmp = count.get();
+    	while (count.get() > QUEUE_SIZE_TO_KEEP) {
+    		count.decrementAndGet();
+    		if (backingQueue.poll() == null) 
+    			count.incrementAndGet();
+    		
     	}
+    	
     		
     }
     public List<MarketValueItem>  getLast5Data() {
