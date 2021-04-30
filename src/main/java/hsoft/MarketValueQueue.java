@@ -12,9 +12,6 @@ public class MarketValueQueue implements MarketValueQueueInterface {
         backingQueue = new ArrayBlockingQueue<MarketValueItem>(QUEUE_SIZE, fair);
     }
 
-    public int size() {
-        return backingQueue.size();
-    }
     public void put(MarketValueItem e)
         throws InterruptedException {
             backingQueue.put(e);

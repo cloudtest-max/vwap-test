@@ -12,13 +12,13 @@ import org.apache.log4j.Logger;
 
 
 public class VwapTrigger {
-  static Logger logger = Logger.getLogger(VwapTrigger.class);
-  static Logger testProductLogger  = Logger.getLogger("TEST_PRODUCT");
+  private static final Logger logger = Logger.getLogger(VwapTrigger.class);
+  private static final Logger testProductLogger  = Logger.getLogger("TEST_PRODUCT");
 
-  private Map<String, Double> fairValueMap = null;
-  private Map<String, MarketValueQueueInterface> marketValueMap = null;
+  private final Map<String, Double> fairValueMap = new ConcurrentHashMap<String, Double>();
+  private final Map<String, MarketValueQueueInterface> marketValueMap = new ConcurrentHashMap<String, MarketValueQueueInterface>();
   
-  public void writeResults(Logger logger, String productId, Double fairValue, Double averageMarketValue, int result) {
+  private void writeResults(Logger logger, String productId, Double fairValue, Double averageMarketValue, int result) {
 
     if (result > 0) {
       logger.info("ProductID:"+ productId + ", VWAP("+ averageMarketValue + ") > FairValue(" + fairValue + ")");
@@ -30,14 +30,18 @@ public class VwapTrigger {
   }
 
   public void handleTransactionOccured(String productId, long quantity, double price) {
+	long startTime= System.nanoTime();
     storeMarketValue(productId, quantity, price);
     
     Double marketValue = getAverageMarketValue(productId);
 
-    //logger.info("VWAP for " + productId + " = " + marketValue);
-
     Double fairValue = getFairValue(productId);
     compareAndWriteResults(productId, fairValue, marketValue);
+    
+    long elapsedTime= (System.nanoTime() - startTime)/1000;
+    String timeMsg = "handleTransactionOccured: productId: " + productId + " processing time:" + (elapsedTime);
+    logger.info(timeMsg);
+    logStringToTestLogger(productId, timeMsg);
 
   }
 
@@ -52,12 +56,17 @@ public class VwapTrigger {
   }
 
   public  void handleFairValueChanged(String productId, double fairValue) {
-    logFairValueToTestLogger(productId, fairValue);
+	long startTime= System.nanoTime();
+	logFairValueToTestLogger(productId, fairValue);
     storeFairValue(productId, fairValue);
 
     Double marketValue = getAverageMarketValue(productId);
     
     compareAndWriteResults( productId,  fairValue,  marketValue) ;
+    long elapsedTime= (System.nanoTime() - startTime)/1000;
+    String timeMsg = "handleFairValueChanged: productId: " + productId + " processing time:" + (elapsedTime);
+    logger.info(timeMsg);
+    logStringToTestLogger(productId, timeMsg);
   }
   
   private void storeFairValue(String productId, double fairValue) {
@@ -71,19 +80,22 @@ public class VwapTrigger {
 	      testProductLogger.debug("Fair Value for " + productId + " = " + fairValue);
 	
   }
+  
+  private void logStringToTestLogger(String productId, String stringValue) {
+	  if ("TEST_PRODUCT".equals(productId))
+	      testProductLogger.debug(stringValue);
+	
+  }
 
-  public Double getFairValue(String productId) {
+  protected Double getFairValue(String productId) {
 	  return fairValueMap.get(productId);
   }
-  public MarketValueQueueInterface getMarketData(String productId) {
-	  return marketValueMap.get(productId);
-  }
 
-  public int compareValues(Double fairValue, Double averageMarketValue) {
+  private int compareValues(Double fairValue, Double averageMarketValue) {
     return Double.compare( averageMarketValue, fairValue);
   }
 
-  public  void storeMarketValue(String productId, long quantity, double price) {
+  private  void storeMarketValue(String productId, long quantity, double price) {
       logMarketValueToTestLogger(productId, quantity, price);
       MarketValueQueueInterface queue = getMarketValueQueue(productId);
       try {
@@ -117,7 +129,7 @@ public class VwapTrigger {
 	
   }
 
-  public Double getAverageMarketValue(String productId) {
+  protected Double getAverageMarketValue(String productId) {
       if (marketValueMap.get(productId) == null) return null;
 
       MarketValueQueueInterface queue = marketValueMap.get(productId);
@@ -128,10 +140,6 @@ public class VwapTrigger {
   }
 
   public VwapTrigger() {
-    fairValueMap = new ConcurrentHashMap<String, Double>();
-    marketValueMap = new ConcurrentHashMap<String, MarketValueQueueInterface>();
-
-
   }
 
   public static void main(String[] args) {
@@ -157,4 +165,11 @@ public class VwapTrigger {
     provider.listen();
     // When this method returns, the test is finished and you can check your results
   }
+  
+
+  // used by testing class only
+  protected MarketValueQueueInterface getMarketData(String productId) {
+	  return marketValueMap.get(productId);
+  }
+
 }

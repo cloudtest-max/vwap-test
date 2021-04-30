@@ -4,7 +4,6 @@ import java.util.List;
 
 public interface MarketValueQueueInterface {
 	   
-	    public int size();
 	    public void put(MarketValueItem e)
 	        throws InterruptedException ;
 	    public MarketValueItem take()

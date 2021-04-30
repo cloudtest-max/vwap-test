@@ -12,9 +12,6 @@ public class MarketValueQueue2 implements MarketValueQueueInterface {
         backingQueue = new LinkedBlockingDeque<MarketValueItem>(QUEUE_SIZE);
     }
 
-    public int size() {
-        return backingQueue.size();
-    }
     public void put(MarketValueItem e)
         throws InterruptedException {
             backingQueue.put(e);
