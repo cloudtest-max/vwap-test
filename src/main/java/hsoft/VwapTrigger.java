@@ -7,6 +7,8 @@ import com.hsoft.codingtest.PricingDataListener;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.log4j.Logger;
 
@@ -17,6 +19,24 @@ public class VwapTrigger {
 
   private final Map<String, Double> fairValueMap = new ConcurrentHashMap<String, Double>();
   private final Map<String, MarketValueQueueInterface> marketValueMap = new ConcurrentHashMap<String, MarketValueQueueInterface>();
+  
+  private AtomicLong totalTimeTransaction= new AtomicLong(0);
+  private AtomicInteger countTransaction = new AtomicInteger(0);
+  private AtomicLong totalTimeFair= new AtomicLong(0);
+  private AtomicInteger countFair = new AtomicInteger(0);
+  public long getScoreTransaction() {
+	  return totalTimeTransaction.get()/countTransaction.get() ;
+	  
+  }
+  public long getScoreFair() {
+	  return totalTimeFair.get()/countFair.get() ;
+	  
+  }
+  public void logScore() {
+	  logger.info("transaction score:" + getScoreTransaction());
+	  logger.info("fair score: " + getScoreFair());
+  }
+  
   
   private void writeResults(Logger logger, String productId, Double fairValue, Double averageMarketValue, int result) {
 
@@ -42,6 +62,8 @@ public class VwapTrigger {
     String timeMsg = "handleTransactionOccured: productId: " + productId + " processing time:" + (elapsedTime);
     logger.info(timeMsg);
     logStringToTestLogger(productId, timeMsg);
+    totalTimeTransaction.addAndGet(elapsedTime);
+    countTransaction.incrementAndGet();
 
   }
 
@@ -67,6 +89,8 @@ public class VwapTrigger {
     String timeMsg = "handleFairValueChanged: productId: " + productId + " processing time:" + (elapsedTime);
     logger.info(timeMsg);
     logStringToTestLogger(productId, timeMsg);
+    totalTimeFair.addAndGet(elapsedTime);
+    countFair.incrementAndGet();
   }
   
   private void storeFairValue(String productId, double fairValue) {
@@ -115,7 +139,7 @@ public class VwapTrigger {
         if (marketValueMap.get(productId) == null) { 
           synchronized (marketValueMap) { // to make sure no 2 thread create queue for the same productId
         	  if (marketValueMap.get(productId) ==null) {
-		          queue = new MarketValueQueue3(); //change to use ConcurrentLinkedDeque
+		          queue = new MarketValueQueue2(); //change to use ConcurrentLinkedDeque
 		          
 		          marketValueMap.put(productId, queue);
         	  } else
@@ -174,6 +198,7 @@ public class VwapTrigger {
 
     provider.listen();
     // When this method returns, the test is finished and you can check your results
+    vTrig.logScore();
   }
   
 
