@@ -12,13 +12,10 @@ public class MarketValueQueue implements MarketValueQueueInterface {
         backingQueue = new ArrayBlockingQueue<MarketValueItem>(QUEUE_SIZE, fair);
     }
 
-    public void put(MarketValueItem e)
-        throws InterruptedException {
-            backingQueue.put(e);
-    }
-    public MarketValueItem take()
-       throws InterruptedException {
-        return backingQueue.take();
+
+    public MarketValueItem peekLast()
+    	       throws InterruptedException {
+    	        return backingQueue.peek();
     }
     public Double getAverageMarketValue()  {
         //get the last 5 price

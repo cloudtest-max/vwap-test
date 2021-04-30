@@ -70,8 +70,8 @@ public class VwapTrigger {
   }
   
   private void storeFairValue(String productId, double fairValue) {
-	  fairValueMap.put(productId, fairValue);
-	  //logger.info("Fair Value for " + productId + " is " + fairValueMap.get(productId).toString());
+	  fairValueMap.put(productId, fairValue); // use of conncurrentHashMap to guarantee thread-safety
+	  
 	
   }
 
@@ -97,7 +97,7 @@ public class VwapTrigger {
 
   private  void storeMarketValue(String productId, long quantity, double price) {
       logMarketValueToTestLogger(productId, quantity, price);
-      MarketValueQueueInterface queue = getMarketValueQueue(productId);
+      MarketValueQueueInterface queue = getMarketValueQueueAndCreateIfApplicable(productId);
       try {
 
         queue.addItemAndRemoveTail(new MarketValueItem(productId, quantity, price));
@@ -108,13 +108,20 @@ public class VwapTrigger {
     
   }
 
-  private MarketValueQueueInterface getMarketValueQueue(String productId) {
+  private MarketValueQueueInterface getMarketValueQueueAndCreateIfApplicable(String productId) {
 	  MarketValueQueueInterface queue = null;
 
         // check whether queue exist, if no , create it
         if (marketValueMap.get(productId) == null) { 
-          queue = new MarketValueQueue2(); //change to use LinkedBlockingDeque
-          marketValueMap.put(productId, queue);
+          synchronized (marketValueMap) { // to make sure no 2 thread create queue for the same productId
+        	  if (marketValueMap.get(productId) ==null) {
+		          queue = new MarketValueQueue2(); //change to use ConcurrentLinkedDeque
+		          
+		          marketValueMap.put(productId, queue);
+        	  } else
+        		  queue = marketValueMap.get(productId);
+        	  
+          }
         } else {
           queue = marketValueMap.get(productId);
         }
@@ -132,7 +139,7 @@ public class VwapTrigger {
   protected Double getAverageMarketValue(String productId) {
       if (marketValueMap.get(productId) == null) return null;
 
-      MarketValueQueueInterface queue = marketValueMap.get(productId);
+      MarketValueQueueInterface queue = marketValueMap.get(productId); // the marketValueMap use ConcurrentHashMap to guarantee thread-safety
       if ( queue == null ) return null;
 
       return queue.getAverageMarketValue();
@@ -144,6 +151,9 @@ public class VwapTrigger {
 
   public static void main(String[] args) {
     VwapTrigger vTrig = new VwapTrigger();
+    
+    
+    
 
     DataProvider provider = DataProviderFactory.getDataProvider();
     provider.addMarketDataListener(new MarketDataListener() {

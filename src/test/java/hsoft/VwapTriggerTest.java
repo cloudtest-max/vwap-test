@@ -41,7 +41,7 @@ public class VwapTriggerTest {
 	  vwapTrigger.handleTransactionOccured(productId, quantity, marketValue);
 	  MarketValueItem item = null;
 		try {
-			item = vwapTrigger.getMarketData(productId).take();
+			item = vwapTrigger.getMarketData(productId).peekLast();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
