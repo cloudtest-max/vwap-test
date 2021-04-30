@@ -115,7 +115,7 @@ public class VwapTrigger {
         if (marketValueMap.get(productId) == null) { 
           synchronized (marketValueMap) { // to make sure no 2 thread create queue for the same productId
         	  if (marketValueMap.get(productId) ==null) {
-		          queue = new MarketValueQueue2(); //change to use ConcurrentLinkedDeque
+		          queue = new MarketValueQueue3(); //change to use ConcurrentLinkedDeque
 		          
 		          marketValueMap.put(productId, queue);
         	  } else
